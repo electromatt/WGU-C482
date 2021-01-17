@@ -1,10 +1,13 @@
 package Main;
 
+import Model.*;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+
+import java.util.Random;
 
 /**
  *
@@ -19,9 +22,16 @@ public class InventorySystem extends Application {
      */
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("/View_Controller/sample.fxml"));
-        primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        Inventory inventory = new Inventory();
+        addTestData(inventory);
+
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/View_Controller/MainScreen.fxml"));
+        View_Controller.MainScreenController controller = new View_Controller.MainScreenController(inventory);
+        fxmlLoader.setController(controller);
+        Parent root = fxmlLoader.load();
+        Scene scene = new Scene(root);
+        primaryStage.setTitle("Inventory Management System");
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 
@@ -31,5 +41,24 @@ public class InventorySystem extends Application {
      */
     public static void main(String[] args) {
         launch(args);
+    }
+
+    private void addTestData(Inventory inventory){
+        Part a1 = new InHouse(1, "Part A1", 2.99, 10, 5, 100, 101);
+        Part a2 = new InHouse(2, "Part A2", 3.99, 15, 5, 100, 102);
+        Part a3 = new Outsourced(3, "Part A3", 4.99, 20, 1, 100, "Company A");
+        inventory.addPart(a1);
+        inventory.addPart(a2);
+        inventory.addPart(a3);
+
+        Product p1 = new Product(1, "Product P1", 9.99,10,1,100);
+        p1.addAssociatedPart(a1);
+        p1.addAssociatedPart(a2);
+        Product p2 = new Product(2, "Product P2", 15.99,10,1,100);
+        p2.addAssociatedPart(a1);
+        p2.addAssociatedPart(a2);
+        inventory.addProduct(p1);
+        inventory.addProduct(p2);
+
     }
 }

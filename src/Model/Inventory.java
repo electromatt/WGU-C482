@@ -1,6 +1,9 @@
 package Model;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+
+import java.util.ArrayList;
 
 /**
  *
@@ -11,11 +14,26 @@ public class Inventory {
     private ObservableList<Part> allParts;
     private ObservableList<Product> allProducts;
 
-    public void addPart(Part newPart){
-        // TODO: implement me.
+    public Inventory() {
+        // Part G:  The below 2 lines didn't exist and was causing runtime errors. This was because the variables "allParts" and "allProducts"
+        //          were not actually being instantiated, just declared. I had to check back on creating an ObservableList.
+        allParts = FXCollections.observableArrayList();
+        allProducts = FXCollections.observableArrayList();
     }
+
+    public void addPart(Part newPart){
+        if(newPart != null){
+            allParts.add(newPart);
+        }
+
+    }
+
     public void addProduct(Product newProduct){
-        // TODO: implement me.
+        if(newProduct == null){
+            ;
+        } else {
+            allProducts.add(newProduct);
+        }
     }
     public Part lookupPart(int partId){
         // TODO: implement me.
@@ -40,12 +58,22 @@ public class Inventory {
         // TODO: implement me.
     }
     public boolean deletePart(Part selectedPart){
-        // TODO: implement me.
-        return false;
+        if(selectedPart != null){
+            allParts.remove(selectedPart);
+            return true;
+        } else {
+            // TODO: Display popup window saying no part selected.
+            return false;
+        }
     }
     public boolean deleteProduct(Product selectedProduct){
-        // TODO: implement me.
-        return false;
+        if(selectedProduct != null){
+            allProducts.remove(selectedProduct);
+            return true;
+        } else {
+            // TODO: Display popup window saying no part selected.
+            return false;
+        }
     }
 
     public ObservableList<Part> getAllParts() {
