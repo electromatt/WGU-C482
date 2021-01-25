@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -21,35 +22,63 @@ public class Inventory {
         allProducts = FXCollections.observableArrayList();
     }
 
+    /**
+     * The addPart method adds a new Part to the Inventory.
+     * @param newPart The Part to add to Inventory.
+     */
     public void addPart(Part newPart){
         if(newPart != null){
             allParts.add(newPart);
         }
-
     }
 
+    /**
+     * The addProduct method adds a new Product to the Inventory.
+     * @param newProduct The Product to add to Inventory.
+     */
     public void addProduct(Product newProduct){
-        if(newProduct == null){
-            ;
-        } else {
+        if(newProduct != null){
             allProducts.add(newProduct);
         }
     }
+
+
     public Part lookupPart(int partId){
-        // TODO: implement me.
+        for (Part p : this.getAllParts()) {
+            if (p.getId() == partId) {
+                return p;
+            }
+        }
         return null;
     }
+
     public Product lookupProduct(int productId){
-        // TODO: implement me.
+        for (Product p : this.getAllProducts()) {
+            if (p.getId() == productId) {
+                return p;
+            }
+        }
         return null;
     }
+
     public ObservableList<Part> lookupPart(String partName){
-        // TODO: implement me.
-        return null;
+        ObservableList<Part> filteredParts = FXCollections.observableArrayList();
+        for (Part p : this.getAllParts()){
+            if (p.getName().toLowerCase().contains(partName.toLowerCase())) {
+                filteredParts.add(p);
+            }
+        }
+        return filteredParts;
     }
+
     public ObservableList<Product> lookupProduct(String productName){
-        // TODO: implement me.
-        return null;
+        ObservableList<Product> filteredProducts = FXCollections.observableArrayList();
+        for (Product p : this.getAllProducts()){
+            if (p.getName().toLowerCase().contains(productName.toLowerCase())) {
+                filteredProducts.add(p);
+            }
+        }
+        return filteredProducts;
     }
     public void updatePart(int index, Part selectedPart){
         // TODO: implement me.
@@ -57,6 +86,12 @@ public class Inventory {
     public void updateProduct(int index, Product newProduct){
         // TODO: implement me.
     }
+
+    /**
+     * The deletePart method removes a Part from Inventory.
+     * @param selectedPart The Part to delete.
+     * @return Returns a boolean value of the result.
+     */
     public boolean deletePart(Part selectedPart){
         if(selectedPart != null){
             allParts.remove(selectedPart);
@@ -66,6 +101,12 @@ public class Inventory {
             return false;
         }
     }
+
+    /**
+     * The deleteProduct method removes a Product from Inventory.
+     * @param selectedProduct The Product to delete.
+     * @return Returns a boolean value of the result.
+     */
     public boolean deleteProduct(Product selectedProduct){
         if(selectedProduct != null){
             allProducts.remove(selectedProduct);
@@ -76,10 +117,18 @@ public class Inventory {
         }
     }
 
+    /**
+     * The getAllParts method returns all the Parts in Inventory.
+     * @return Returns all of the Parts in Inventory.
+     */
     public ObservableList<Part> getAllParts() {
         return allParts;
     }
 
+    /**
+     * The getAllProducts method returns all the Products in Inventory.
+     * @return Returns all of the Products in Inventory.
+     */
     public ObservableList<Product> getAllProducts() {
         return allProducts;
     }

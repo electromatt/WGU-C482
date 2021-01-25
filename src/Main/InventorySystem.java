@@ -46,10 +46,13 @@ public class InventorySystem extends Application {
     private void addTestData(Inventory inventory){
         Part a1 = new InHouse(1, "Part A1", 2.99, 10, 5, 100, 101);
         Part a2 = new InHouse(2, "Part A2", 3.99, 15, 5, 100, 102);
-        Part a3 = new Outsourced(3, "Part A3", 4.99, 20, 1, 100, "Company A");
+        Part a3 = new Outsourced(3, "Part A4", 4.99, 20, 1, 100, "Company A");
+        Part a4 = new Outsourced(4, "Part A4", 3.99, 20, 1, 100, "Company B");
+
         inventory.addPart(a1);
         inventory.addPart(a2);
         inventory.addPart(a3);
+        inventory.addPart(a4);
 
         Product p1 = new Product(1, "Product P1", 9.99,10,1,100);
         p1.addAssociatedPart(a1);
