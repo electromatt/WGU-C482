@@ -29,7 +29,7 @@ public class AddPartController implements Initializable {
     }
 
     /**
-     * This generates the data tables using the test data.
+     * the initialize method generates a new ID for the part.
      * @param url
      * @param resourceBundle
      */

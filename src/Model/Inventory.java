@@ -81,7 +81,8 @@ public class Inventory {
         return filteredProducts;
     }
     public void updatePart(int index, Part selectedPart){
-        // TODO: implement me.
+        allParts.remove(index);
+        allParts.add(index, selectedPart);
     }
     public void updateProduct(int index, Product newProduct){
         // TODO: implement me.

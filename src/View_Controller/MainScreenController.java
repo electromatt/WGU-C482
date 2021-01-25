@@ -204,10 +204,11 @@ public class MainScreenController implements Initializable {
 
     @FXML
     void modifyPart(MouseEvent event) throws IOException {
-        /*
+        int selected = partTableView.getSelectionModel().getSelectedIndex();
+
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource("/View_Controller/ModifyPartScreen.fxml"));
-        ModifyPartController controller = new ModifyPartController(inventory);
+        ModifyPartController controller = new ModifyPartController(inventory, selected);
         fxmlLoader.setController(controller);
         fxmlLoader.load();
 
@@ -216,7 +217,6 @@ public class MainScreenController implements Initializable {
         stage.setScene(new Scene(scene));
         stage.show();
 
-         */
     }
 
     @FXML
