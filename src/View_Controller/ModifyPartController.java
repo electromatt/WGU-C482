@@ -26,34 +26,7 @@ public class ModifyPartController implements Initializable {
     private int newId;
     private int selectedIndex;
 
-    public ModifyPartController(Inventory inventory, int index) {
-        this.inventory = inventory;
-        this.selectedIndex = index;
-    }
-
-    /**
-     *
-     * @param url
-     * @param resourceBundle
-     */
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        Part part = inventory.getAllParts().get(selectedIndex);
-        id.setText(String.valueOf(part.getId()));
-        name.setText(part.getName());
-        price.setText(String.valueOf(part.getPrice()));
-        stock.setText(String.valueOf(part.getStock()));
-        min.setText(String.valueOf(part.getMin()));
-        max.setText(String.valueOf(part.getMax()));
-        if(part instanceof InHouse){
-            inHouse.setSelected(true);
-            partSource.setText(String.valueOf(((InHouse) part).getMachineId()));
-        } else if(part instanceof Outsourced){
-            outsourced.setSelected(true);
-            partSource.setText(((Outsourced) part).getCompanyName());
-        }
-    }
-
+    //region FXML Variables
     @FXML
     private RadioButton inHouse;
 
@@ -92,6 +65,35 @@ public class ModifyPartController implements Initializable {
 
     @FXML
     private Button cancel;
+    //endregion
+
+    public ModifyPartController(Inventory inventory, int index) {
+        this.inventory = inventory;
+        this.selectedIndex = index;
+    }
+
+    /**
+     *
+     * @param url
+     * @param resourceBundle
+     */
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        Part part = inventory.getAllParts().get(selectedIndex);
+        id.setText(String.valueOf(part.getId()));
+        name.setText(part.getName());
+        price.setText(String.valueOf(part.getPrice()));
+        stock.setText(String.valueOf(part.getStock()));
+        min.setText(String.valueOf(part.getMin()));
+        max.setText(String.valueOf(part.getMax()));
+        if(part instanceof InHouse){
+            inHouse.setSelected(true);
+            partSource.setText(String.valueOf(((InHouse) part).getMachineId()));
+        } else if(part instanceof Outsourced){
+            outsourced.setSelected(true);
+            partSource.setText(((Outsourced) part).getCompanyName());
+        }
+    }
 
     @FXML
     void savePart(MouseEvent event) throws IOException {

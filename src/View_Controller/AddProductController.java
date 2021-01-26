@@ -1,8 +1,6 @@
 package View_Controller;
 
-import Model.Inventory;
-import Model.Part;
-import Model.Product;
+import Model.*;
 import com.sun.tools.javac.Main;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -24,48 +22,23 @@ import java.util.ResourceBundle;
 
 public class AddProductController implements Initializable {
 
+    //region Variables
     private Inventory inventory;
     private Stage stage;
     private Parent scene;
     private int newId;
 
+    private ObservableList<Part> partList = FXCollections.observableArrayList();
+    private ObservableList<Part> pickedParts = FXCollections.observableArrayList();
+    //endregion
+
+    //region FXML Variables
     @FXML
     private TableView<Part> availableParts;
+
     @FXML
     private TableView<Part> associatedParts;
 
-    private ObservableList<Part> partList = FXCollections.observableArrayList();
-    private ObservableList<Part> pickedParts = FXCollections.observableArrayList();
-
-    public AddProductController(Inventory inventory) {
-        this.inventory = inventory;
-    }
-
-    /**
-     *
-     * @param url
-     * @param resourceBundle
-     */
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        generatePartsTable();
-        newId = -1;
-        for(Product p : inventory.getAllProducts()){
-            if(p.getId() > newId) {
-                newId = p.getId();
-            }
-        }
-        if(newId > 0){
-            newId++;
-            id.setText(String.valueOf(newId));
-        }
-    }
-
-    private void generatePartsTable(){
-        partList.setAll(inventory.getAllParts());
-        availableParts.setItems(partList);
-        availableParts.refresh();
-    }
     @FXML
     private TextField id;
 
@@ -104,9 +77,42 @@ public class AddProductController implements Initializable {
 
     @FXML
     private Button partAddButton1;
+    //endregion
 
     /**
-     *
+     * Constructor
+     * @param inventory
+     */
+    public AddProductController(Inventory inventory) {
+        this.inventory = inventory;
+    }
+
+    /**
+     * The initialize method populates the Part table and generates a new ID for the product.
+     * @param url
+     * @param resourceBundle
+     */
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        partList.setAll(inventory.getAllParts());
+        availableParts.setItems(partList);
+        availableParts.refresh();
+
+        newId = -1;
+        for(Product p : inventory.getAllProducts()){
+            if(p.getId() > newId) {
+                newId = p.getId();
+            }
+        }
+        if(newId > 0){
+            newId++;
+            id.setText(String.valueOf(newId));
+        }
+    }
+
+    /**
+     * The addPart method adds the selected Part to the list of associated Parts. If the Part is already added,
+     * an error alert will appear.
      * @param event
      */
     @FXML
@@ -124,47 +130,96 @@ public class AddProductController implements Initializable {
 
     }
 
+    /**
+     * The productCancel method returns to the main screen.
+     * @param event
+     * @throws IOException
+     */
     @FXML
     void productCancel(MouseEvent event) throws IOException {
-
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you wish to cancel creating the product?");
-        Optional<ButtonType> result = alert.showAndWait();
-
-        if(result.isPresent() && result.get() == ButtonType.OK){
-            returnToMainScreen(event);
-        }
-    }
-
-    @FXML
-    void removePart(MouseEvent event) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to remove the selected Part?");
-        Optional<ButtonType> result = alert.showAndWait();
-
-        if(result.isPresent() && result.get() == ButtonType.OK){
-            Part selected = associatedParts.getSelectionModel().getSelectedItem();
-            pickedParts.remove(selected);
-            associatedParts.refresh();
-        }
-    }
-
-    @FXML
-    void saveProduct(MouseEvent event) throws IOException {
-        int productID = newId;
-        String productName = name.getText();
-        double productPrice = Double.valueOf(price.getText());
-        int productStock = Integer.valueOf(stock.getText());
-        int productMin = Integer.valueOf(min.getText());
-        int productMax = Integer.valueOf(max.getText());
-
-        // int id, String name, double price, int stock, int min, int max
-        Product product = new Product(productID, productName, productPrice, productStock, productMin, productMax);
-        for(Part p : pickedParts){
-            product.addAssociatedPart(p);
-        }
-        inventory.addProduct(product);
         returnToMainScreen(event);
     }
 
+    /**
+     * The removePart method removes the selected Part from the list of associated Parts.
+     * @param event
+     */
+    @FXML
+    void removePart(MouseEvent event) {
+        Part selected = associatedParts.getSelectionModel().getSelectedItem();
+
+        if(selected == null){
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setContentText("No part is selected!");
+            alert.showAndWait();
+        } else {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to remove the selected Part?");
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                pickedParts.remove(selected);
+                associatedParts.refresh();
+            }
+        }
+    }
+
+    /**
+     * The saveProduct method validates all the input fields and creates the Product. All fields are required and must
+     * match the specified type.
+     * Name = String
+     * Price = Double
+     * Stock = Integer
+     * Min = Integer
+     * Max = Integer
+     * @param event
+     * @throws IOException
+     */
+    @FXML
+    void saveProduct(MouseEvent event) throws IOException {
+        try {
+            int productID = newId;
+            String productName = name.getText();
+            double productPrice = Double.valueOf(price.getText());
+            int productStock = Integer.valueOf(stock.getText());
+            int productMin = Integer.valueOf(min.getText());
+            int productMax = Integer.valueOf(max.getText());
+
+            if(productMin <= productMax) {
+                if ((productMin <= productStock) && (productStock <= productMax)) {
+                    // int id, String name, double price, int stock, int min, int max
+                    Product product = new Product(productID, productName, productPrice, productStock, productMin, productMax);
+                    for(Part p : pickedParts){
+                        product.addAssociatedPart(p);
+                    }
+                    inventory.addProduct(product);
+                    returnToMainScreen(event);
+                } else {
+                    throw new IllegalStateException("Item inventory should be within the Min and Max values.");
+                }
+            } else {
+                throw new IllegalStateException("Min value should be less than Max.");
+            }
+        } catch (NumberFormatException e){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error adding Product");
+            alert.setContentText("Please enter valid inputs for all fields.");
+            alert.showAndWait();
+        } catch (IllegalStateException e){
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Error adding Product");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        }
+
+
+
+    }
+
+    /**
+     * The searchPart method reads the search text box, locates all matching items (by name or by ID), and returns an
+     * ObservableList of type Part.
+     * @param event
+     */
     @FXML
     void searchPart(KeyEvent event) {
         String partToSearch = partSearchField.getText();
@@ -207,6 +262,11 @@ public class AddProductController implements Initializable {
         }
     }
 
+    /**
+     * The returnToMainScreen method sets the scene and controller back to the Main Screen.
+     * @param event
+     * @throws IOException
+     */
     private void returnToMainScreen(MouseEvent event) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource("/View_Controller/MainScreen.fxml"));

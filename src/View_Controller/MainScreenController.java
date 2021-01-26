@@ -25,50 +25,19 @@ import java.util.ResourceBundle;
 
 public class MainScreenController implements Initializable {
 
+    //region Variables
     Inventory inventory;
     Stage stage;
     Parent scene;
 
-    @FXML
-    private TableView<Part> partTableView;
-    @FXML
-    private TableView<Product> productTableView;
-
     private ObservableList<Part> partList = FXCollections.observableArrayList();
     private ObservableList<Product> productList = FXCollections.observableArrayList();
 
-    public MainScreenController(Inventory inventory) {
-        this.inventory = inventory;
-    }
+    @FXML
+    private TableView<Part> partTableView;
 
-    /**
-     * This generates the data tables using the test data.
-     * @param url
-     * @param resourceBundle
-     */
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        generatePartsTable();
-        generateProductsTable();
-    }
-
-    /**
-     * the generatePartsTable method uses the Inventory object to populate the parts table with the parts in inventory.
-     */
-    private void generatePartsTable(){
-        partList.setAll(inventory.getAllParts());
-        partTableView.setItems(partList);
-        partTableView.refresh();
-    }
-
-    /**
-     * the generateProductsTable method uses the Inventory object to populate the products table with the products in inventory.
-     */
-    private void generateProductsTable(){
-        productList.setAll(inventory.getAllProducts());
-        productTableView.setItems(productList);
-        productTableView.refresh();
-    }
+    @FXML
+    private TableView<Product> productTableView;
 
     @FXML
     private HBox mainHBox;
@@ -111,6 +80,44 @@ public class MainScreenController implements Initializable {
 
     @FXML
     private Button exitAppButton;
+    //endregion
+
+    /**
+     * Constructor
+     * @param inventory The inventory object.
+     */
+    public MainScreenController(Inventory inventory) {
+        this.inventory = inventory;
+    }
+
+    /**
+     * This generates the data tables using the test data.
+     * @param url
+     * @param resourceBundle
+     */
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        generatePartsTable();
+        generateProductsTable();
+    }
+
+    /**
+     * the generatePartsTable method uses the Inventory object to populate the parts table with the parts in inventory.
+     */
+    private void generatePartsTable(){
+        partList.setAll(inventory.getAllParts());
+        partTableView.setItems(partList);
+        partTableView.refresh();
+    }
+
+    /**
+     * the generateProductsTable method uses the Inventory object to populate the products table with the products in inventory.
+     */
+    private void generateProductsTable(){
+        productList.setAll(inventory.getAllProducts());
+        productTableView.setItems(productList);
+        productTableView.refresh();
+    }
 
     /**
      * The addPart method passes the inventory to the Add Part page where the user can create new Parts.
@@ -157,16 +164,22 @@ public class MainScreenController implements Initializable {
      */
     @FXML
     void deletePart(MouseEvent event) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to delete the selected Part?");
-        Optional<ButtonType> result = alert.showAndWait();
+        Part selected = partTableView.getSelectionModel().getSelectedItem();
 
-        if(result.isPresent() && result.get() == ButtonType.OK){
-            Part selected = partTableView.getSelectionModel().getSelectedItem();
-            inventory.deletePart(selected);
-            partList.remove(selected);
-            partTableView.refresh();
+        if(selected == null){
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setContentText("No part is selected!");
+            alert.showAndWait();
+        } else {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to delete the selected Part?");
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                inventory.deletePart(selected);
+                partList.remove(selected);
+                partTableView.refresh();
+            }
         }
-
     }
 
     /**
@@ -175,20 +188,27 @@ public class MainScreenController implements Initializable {
      */
     @FXML
     void deleteProduct(MouseEvent event) {
-        if(productTableView.getSelectionModel().getSelectedItem().getAllAssociatedParts().size() > 0){
+        Product selected = productTableView.getSelectionModel().getSelectedItem();
+
+        if(selected == null){
             Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Error deleting Product");
-            alert.setContentText("Cannot delete a Product that has a part associated with it!");
+            alert.setContentText("No product is selected!");
             alert.showAndWait();
         } else {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to delete the selected Product?");
-            Optional<ButtonType> result = alert.showAndWait();
+            if (productTableView.getSelectionModel().getSelectedItem().getAllAssociatedParts().size() > 0) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Error deleting Product");
+                alert.setContentText("Cannot delete a Product that has a part associated with it!");
+                alert.showAndWait();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to delete the selected Product?");
+                Optional<ButtonType> result = alert.showAndWait();
 
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                Product selected = productTableView.getSelectionModel().getSelectedItem();
-                inventory.deleteProduct(selected);
-                productList.remove(selected);
-                productTableView.refresh();
+                if (result.isPresent() && result.get() == ButtonType.OK) {
+                    inventory.deleteProduct(selected);
+                    productList.remove(selected);
+                    productTableView.refresh();
+                }
             }
         }
     }
@@ -202,38 +222,61 @@ public class MainScreenController implements Initializable {
         Platform.exit();
     }
 
+    /**
+     * The modifyPart method passes the inventory and the index of the selected Part to the Modify Part page where the
+     * user can modify the Part.
+     * @param event
+     * @throws IOException
+     */
     @FXML
     void modifyPart(MouseEvent event) throws IOException {
         int selected = partTableView.getSelectionModel().getSelectedIndex();
 
-        FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource("/View_Controller/ModifyPartScreen.fxml"));
-        ModifyPartController controller = new ModifyPartController(inventory, selected);
-        fxmlLoader.setController(controller);
-        fxmlLoader.load();
+        if(selected < 0){
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setContentText("No part is selected!");
+            alert.showAndWait();
+        } else {
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(getClass().getResource("/View_Controller/ModifyPartScreen.fxml"));
+            ModifyPartController controller = new ModifyPartController(inventory, selected);
+            fxmlLoader.setController(controller);
+            fxmlLoader.load();
 
-        stage = (Stage) ((Button)event.getSource()).getScene().getWindow();
-        Parent scene = fxmlLoader.getRoot();
-        stage.setScene(new Scene(scene));
-        stage.show();
-
+            stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
+            Parent scene = fxmlLoader.getRoot();
+            stage.setScene(new Scene(scene));
+            stage.show();
+        }
     }
 
+    /**
+     * The modifyProduct method passes the inventory and the index of the selected Product to the Modify Product
+     * page where the user can modify the Product.
+     * @param event
+     * @throws IOException
+     */
     @FXML
     void modifyProduct(MouseEvent event) throws IOException {
-        /*
-        FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource("/View_Controller/ModifyProductScreen.fxml"));
-        ModifyProductController controller = new ModifyProductController(inventory);
-        fxmlLoader.setController(controller);
-        fxmlLoader.load();
+        int selected = productTableView.getSelectionModel().getSelectedIndex();
 
-        stage = (Stage) ((Button)event.getSource()).getScene().getWindow();
-        Parent scene = fxmlLoader.getRoot();
-        stage.setScene(new Scene(scene));
-        stage.show();
+        if(selected < 0){
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setContentText("No product is selected!");
+            alert.showAndWait();
+        } else {
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(getClass().getResource("/View_Controller/ModifyProductScreen.fxml"));
+            ModifyProductController controller = new ModifyProductController(inventory, selected);
+            fxmlLoader.setController(controller);
+            fxmlLoader.load();
 
-         */
+            stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
+            Parent scene = fxmlLoader.getRoot();
+            stage.setScene(new Scene(scene));
+            stage.show();
+        }
+
     }
 
     /**
@@ -278,7 +321,7 @@ public class MainScreenController implements Initializable {
 
         // If the search field is empty, show all the Products.
         if(productToSearch.isEmpty()) {
-            partTableView.setItems(partList);
+            productTableView.setItems(productList);
         }
         // If the search string is an Integer, lookup all Products by productId and productName.
         else if(isInteger(productToSearch)){

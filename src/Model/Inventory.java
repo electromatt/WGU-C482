@@ -84,8 +84,9 @@ public class Inventory {
         allParts.remove(index);
         allParts.add(index, selectedPart);
     }
-    public void updateProduct(int index, Product newProduct){
-        // TODO: implement me.
+    public void updateProduct(int index, Product selectedProduct){
+        allProducts.remove(index);
+        allProducts.add(index, selectedProduct);
     }
 
     /**

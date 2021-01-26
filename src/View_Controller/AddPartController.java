@@ -19,34 +19,11 @@ import java.util.ResourceBundle;
 
 public class AddPartController implements Initializable {
 
+    //region variables
     private Inventory inventory;
     private Stage stage;
     private Parent scene;
     private int newId;
-
-    public AddPartController(Inventory inventory) {
-        this.inventory = inventory;
-    }
-
-    /**
-     * the initialize method generates a new ID for the part.
-     * @param url
-     * @param resourceBundle
-     */
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        newId = -1;
-        for(Part p : inventory.getAllParts()){
-            if(p.getId() > newId) {
-                newId = p.getId();
-            }
-        }
-        if(newId > 0){
-            newId++;
-            id.setText(String.valueOf(newId));
-        }
-    }
-
     @FXML
     private TextField partSource;
 
@@ -88,9 +65,45 @@ public class AddPartController implements Initializable {
 
     @FXML
     private Button cancel;
+//endregion
 
     /**
-     * The savePart method validates all the inputs and
+     * Constructor
+     * @param inventory
+     */
+    public AddPartController(Inventory inventory) {
+        this.inventory = inventory;
+    }
+
+    /**
+     * the initialize method generates a new ID for the part.
+     * @param url
+     * @param resourceBundle
+     */
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        newId = -1;
+        for(Part p : inventory.getAllParts()){
+            if(p.getId() > newId) {
+                newId = p.getId();
+            }
+        }
+        if(newId > 0){
+            newId++;
+            id.setText(String.valueOf(newId));
+        }
+    }
+
+    /**
+     * The savePart method validates all the input fields and creates the Part. All fields are required and must
+     * match the specified type.
+     * Name = String
+     * Price = Double
+     * Stock = Integer
+     * Min = Integer
+     * Max = Integer
+     * Machine ID = Integer
+     * Company Name = String
      * @param event
      * @throws IOException
      */
