@@ -7,8 +7,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.util.Random;
-
 /**
  *
  * @author Matthew Druckhammer
@@ -22,6 +20,7 @@ public class InventorySystem extends Application {
      */
     @Override
     public void start(Stage primaryStage) throws Exception{
+        // Create a new inventory and add the test data.
         Inventory inventory = new Inventory();
         addTestData(inventory);
 

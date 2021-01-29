@@ -1,7 +1,6 @@
 package View_Controller;
 
 import Model.*;
-import com.sun.tools.javac.Main;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -14,7 +13,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
@@ -22,17 +20,12 @@ import java.util.ResourceBundle;
 
 public class ModifyProductController implements Initializable {
 
-    //region Variables
-    private Inventory inventory;
-    private Stage stage;
-    private Parent scene;
-    private int selectedIndex;
+    private final Inventory inventory;
+    private final int selectedIndex;
 
-    private ObservableList<Part> partList = FXCollections.observableArrayList();
-    private ObservableList<Part> pickedParts = FXCollections.observableArrayList();
-    //endregion
+    private final ObservableList<Part> partList = FXCollections.observableArrayList();
+    private final ObservableList<Part> pickedParts = FXCollections.observableArrayList();
 
-    //region FXML variables
     @FXML
     private TableView<Part> availableParts;
 
@@ -77,11 +70,11 @@ public class ModifyProductController implements Initializable {
 
     @FXML
     private Button partAddButton1;
-    //endregion
 
     /**
-     * Constructor
-     * @param inventory
+     * Modify Product Controller Constructor. Takes in an inventory object and the index of the selected product.
+     * @param inventory The inventory object.
+     * @param index The index of the selected product from the main screen.
      */
     public ModifyProductController(Inventory inventory, int index) {
         this.inventory = inventory;
@@ -89,7 +82,7 @@ public class ModifyProductController implements Initializable {
     }
 
     /**
-     * The initialize method populates the Part table and generates a new ID for the product.
+     * The initialize method populates the part table and generates a new ID for the product.
      * @param url
      * @param resourceBundle
      */
@@ -118,19 +111,20 @@ public class ModifyProductController implements Initializable {
     }
 
     /**
-     * The addPart method adds the selected Part to the list of associated Parts. If the Part is already added,
+     * The addPart method adds the selected part to the list of associated parts. If the part is already added,
      * an error alert will appear.
      * @param event
      */
     @FXML
     void addPart(MouseEvent event) {
+        // If the part isn't already part of the associated parts, add it to associated parts.
         if(!pickedParts.contains(availableParts.getSelectionModel().getSelectedItem())){
             pickedParts.add(availableParts.getSelectionModel().getSelectedItem());
             associatedParts.setItems(pickedParts);
             associatedParts.refresh();
         } else{
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error adding Part");
+            alert.setTitle("Error adding part");
             alert.setContentText("Cannot add selected part to the product, the part has already been added.");
             alert.showAndWait();
         }
@@ -147,19 +141,22 @@ public class ModifyProductController implements Initializable {
     }
 
     /**
-     * The removePart method removes the selected Part from the list of associated Parts.
+     * The removePart method removes the selected part from the list of associated parts.
      * @param event
      */
     @FXML
     void removePart(MouseEvent event) {
+        // Get the selected part.
         Part selected = associatedParts.getSelectionModel().getSelectedItem();
 
+        // If no part is selected display a warning. Otherwise confirm deletion and remove the part from the list
+        // of associated parts.
         if(selected == null){
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setContentText("No part is selected!");
             alert.showAndWait();
         } else {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to remove the selected Part?");
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to remove the selected part?");
             Optional<ButtonType> result = alert.showAndWait();
 
             if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -170,7 +167,7 @@ public class ModifyProductController implements Initializable {
     }
 
     /**
-     * The saveProduct method validates all the input fields and creates the Product. All fields are required and must
+     * The saveProduct method validates all the input fields and creates the product. All fields are required and must
      * match the specified type.
      * Name = String
      * Price = Double
@@ -183,16 +180,19 @@ public class ModifyProductController implements Initializable {
     @FXML
     void saveProduct(MouseEvent event) throws IOException {
         try {
-            int productID = Integer.valueOf(id.getText());
+            // Set constructor variables from input fields.
+            int productID = Integer.parseInt(id.getText());
             String productName = name.getText();
-            double productPrice = Double.valueOf(price.getText());
-            int productStock = Integer.valueOf(stock.getText());
-            int productMin = Integer.valueOf(min.getText());
-            int productMax = Integer.valueOf(max.getText());
+            double productPrice = Double.parseDouble(price.getText());
+            int productStock = Integer.parseInt(stock.getText());
+            int productMin = Integer.parseInt(min.getText());
+            int productMax = Integer.parseInt(max.getText());
 
+            // Make sure the min inventory is less than the max.
             if(productMin <= productMax) {
+                // Make sure the product stock is between the min and the max inventory.
                 if ((productMin <= productStock) && (productStock <= productMax)) {
-                    // int id, String name, double price, int stock, int min, int max
+                    // Update the product, and add associated parts to the product.
                     Product product = new Product(productID, productName, productPrice, productStock, productMin, productMax);
                     for(Part p : pickedParts){
                         product.addAssociatedPart(p);
@@ -207,12 +207,12 @@ public class ModifyProductController implements Initializable {
             }
         } catch (NumberFormatException e){
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error adding Product");
+            alert.setTitle("Error adding product");
             alert.setContentText("Please enter valid inputs for all fields.");
             alert.showAndWait();
         } catch (IllegalStateException e){
             Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Error adding Product");
+            alert.setTitle("Error adding product");
             alert.setContentText(e.getMessage());
             alert.showAndWait();
         }
@@ -228,20 +228,20 @@ public class ModifyProductController implements Initializable {
         String partToSearch = partSearchField.getText();
         ObservableList<Part> filteredParts = FXCollections.observableArrayList();
 
-        // If the search field is empty, show all the Parts.
+        // If the search field is empty, show all the parts.
         if(partToSearch.isEmpty()) {
             availableParts.setItems(partList);
         }
-        // If the search string is an Integer, lookup all Parts by partId and partName.
+        // If the search string is an Integer, lookup all parts by partId and partName.
         else if(isInteger(partToSearch)){
             filteredParts.addAll(inventory.lookupPart(partToSearch));
-            // Skip adding the Part if it already exists from the previous add.
+            // Skip adding the part if it already exists from the previous add.
             if(!filteredParts.contains(inventory.lookupPart(Integer.parseInt(partToSearch)))){
                 filteredParts.add(inventory.lookupPart(Integer.parseInt(partToSearch)));
             }
             availableParts.setItems(filteredParts);
         }
-        // Otherwise, lookup all Parts containing the search string.
+        // Otherwise, lookup all parts containing the search string.
         else{
             filteredParts.addAll(inventory.lookupPart(partToSearch));
             availableParts.setItems(filteredParts);
@@ -271,13 +271,14 @@ public class ModifyProductController implements Initializable {
      * @throws IOException
      */
     private void returnToMainScreen(MouseEvent event) throws IOException {
+        // Setup loader and controller for the main screen. Pass inventory back to main screen.
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource("/View_Controller/MainScreen.fxml"));
         MainScreenController controller = new MainScreenController(inventory);
         fxmlLoader.setController(controller);
         fxmlLoader.load();
 
-        stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
+        Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
         Parent scene = fxmlLoader.getRoot();
         stage.setScene(new Scene(scene));
         stage.show();

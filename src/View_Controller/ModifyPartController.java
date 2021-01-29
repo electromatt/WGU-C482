@@ -19,14 +19,9 @@ import java.util.ResourceBundle;
 
 public class ModifyPartController implements Initializable {
 
-    private Inventory inventory;
-    private Part part;
-    private Stage stage;
-    private Parent scene;
-    private int newId;
-    private int selectedIndex;
+    private final Inventory inventory;
+    private final int selectedIndex;
 
-    //region FXML Variables
     @FXML
     private RadioButton inHouse;
 
@@ -65,8 +60,12 @@ public class ModifyPartController implements Initializable {
 
     @FXML
     private Button cancel;
-    //endregion
 
+    /**
+     * Modify Part Controller Constructor. Takes in an inventory object and the index of the selected part.
+     * @param inventory The inventory object.
+     * @param index The index of the selected part from the main screen.
+     */
     public ModifyPartController(Inventory inventory, int index) {
         this.inventory = inventory;
         this.selectedIndex = index;
@@ -79,13 +78,17 @@ public class ModifyPartController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        // Get the product at the selected index.
         Part part = inventory.getAllParts().get(selectedIndex);
+
+        // Populate data from the part.
         id.setText(String.valueOf(part.getId()));
         name.setText(part.getName());
         price.setText(String.valueOf(part.getPrice()));
         stock.setText(String.valueOf(part.getStock()));
         min.setText(String.valueOf(part.getMin()));
         max.setText(String.valueOf(part.getMax()));
+
         if(part instanceof InHouse){
             inHouse.setSelected(true);
             partSource.setText(String.valueOf(((InHouse) part).getMachineId()));
@@ -98,24 +101,30 @@ public class ModifyPartController implements Initializable {
     @FXML
     void savePart(MouseEvent event) throws IOException {
         try {
-            int partID = Integer.valueOf(id.getText());
+            // Set constructor variables from input fields.
+            int partID = Integer.parseInt(id.getText());
             String partName = name.getText();
-            double partPrice = Double.valueOf(price.getText());
-            int partStock = Integer.valueOf(stock.getText());
-            int partMin = Integer.valueOf(min.getText());
-            int partMax = Integer.valueOf(max.getText());
+            double partPrice = Double.parseDouble(price.getText());
+            int partStock = Integer.parseInt(stock.getText());
+            int partMin = Integer.parseInt(min.getText());
+            int partMax = Integer.parseInt(max.getText());
 
+            // Make sure the min inventory is less than the max.
             if(partMin <= partMax) {
+                // Make sure the part stock is between the min and the max inventory.
                 if ((partMin <= partStock) && (partStock <= partMax)) {
+                    // Update the InHouse part if the In-House Radio Button is selected.
                     if (inHouse.isSelected()) {
-                        int partMachineID = Integer.valueOf(partSource.getText());
+                        int partMachineID = Integer.parseInt(partSource.getText());
                         InHouse newPart = new InHouse(partID, partName, partPrice, partStock, partMin, partMax, partMachineID);
                         inventory.updatePart(selectedIndex, newPart);
+                    // Update the Outsourced part if the Outsourced Radio Button is selected.
                     } else if (outsourced.isSelected()) {
                         String partCompanyName = partSource.getText();
                         Outsourced newPart = new Outsourced(partID, partName, partPrice, partStock, partMin, partMax, partCompanyName);
                         inventory.updatePart(selectedIndex, newPart);
                     }
+                    // Return back home.
                     returnToMainScreen(event);
                 } else {
                     throw new IllegalStateException("Item inventory should be within the Min and Max values.");
@@ -125,12 +134,12 @@ public class ModifyPartController implements Initializable {
             }
         } catch (NumberFormatException e){
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error adding Part");
+            alert.setTitle("Error adding part");
             alert.setContentText("Please enter valid inputs for all fields.");
             alert.showAndWait();
         } catch (IllegalStateException e){
             Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Error adding Part");
+            alert.setTitle("Error adding part");
             alert.setContentText(e.getMessage());
             alert.showAndWait();
         }
@@ -148,10 +157,9 @@ public class ModifyPartController implements Initializable {
 
     /**
      * The selectInHouse method updates the part source label when the InHouse Radio Button is selected.
-     * @throws IOException
      */
     @FXML
-    void selectInHouse () throws IOException {
+    void selectInHouse () {
         if(inHouse.isSelected()){
             partSourceLabel.setText("Machine ID");
         }
@@ -159,27 +167,11 @@ public class ModifyPartController implements Initializable {
 
     /**
      * The selectOutsourced method updates the part source label when the Outsourced Radio Button is selected.
-     * @throws IOException
      */
     @FXML
-    void selectOutsourced () throws IOException {
+    void selectOutsourced () {
         if(outsourced.isSelected()){
             partSourceLabel.setText("Company Name");
-        }
-    }
-
-    /**
-     * The isInteger method checks to see if the string parameter is an Integer.
-     * @param string The string to validate.
-     * @return Returns a boolean value of whether the string parameter is an Integer or not.
-     */
-    private boolean isInteger(String string){
-        try {
-            Integer.parseInt(string);
-            return true;
-        }
-        catch( NumberFormatException e) {
-            return false;
         }
     }
 
@@ -189,13 +181,14 @@ public class ModifyPartController implements Initializable {
      * @throws IOException
      */
     private void returnToMainScreen(MouseEvent event) throws IOException {
+        // Setup loader and controller for the main screen. Pass inventory back to main screen.
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource("/View_Controller/MainScreen.fxml"));
         MainScreenController controller = new MainScreenController(inventory);
         fxmlLoader.setController(controller);
         fxmlLoader.load();
 
-        stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
+        Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
         Parent scene = fxmlLoader.getRoot();
         stage.setScene(new Scene(scene));
         stage.show();

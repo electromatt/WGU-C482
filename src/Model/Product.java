@@ -9,7 +9,7 @@ import javafx.collections.ObservableList;
  */
 public class Product {
 
-    private ObservableList<Part> associatedParts;
+    private final ObservableList<Part> associatedParts;
     private int id;
     private String name;
     private double price;
@@ -38,7 +38,7 @@ public class Product {
 
     /**
      * The setId method sets the ID of the product.
-     * @param id
+     * @param id The id of the product.
      */
     public void setId(int id) {
         this.id = id;
@@ -46,7 +46,7 @@ public class Product {
 
     /**
      * The setName method sets the name of the product.
-     * @param name
+     * @param name The name of the product.
      */
     public void setName(String name) {
         this.name = name;
@@ -54,7 +54,7 @@ public class Product {
 
     /**
      * The setPrice method sets the price of the product.
-     * @param price
+     * @param price The price of the product.
      */
     public void setPrice(double price) {
         this.price = price;
@@ -62,7 +62,7 @@ public class Product {
 
     /**
      * The setStock method sets the inventory stock of the product.
-     * @param stock
+     * @param stock The amount of products in stock.
      */
     public void setStock(int stock) {
         this.stock = stock;
@@ -70,7 +70,7 @@ public class Product {
 
     /**
      * The setMin method sets the minimum amount of inventory stock for the product.
-     * @param min
+     * @param min The minimum amount of products.
      */
     public void setMin(int min) {
         this.min = min;
@@ -78,39 +78,63 @@ public class Product {
 
     /**
      * The setMax method sets the maximum amount of inventory stock for the product.
-     * @param max
+     * @param max The maximum amount of products.
      */
     public void setMax(int max) {
         this.max = max;
     }
 
+    /**
+     * The getId method returns the id of the product.
+     * @return Returns the id of the product.
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * The getName method returns the name of the product.
+     * @return Returns the name of the product.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * The getPrice method returns the price of the product.
+     * @return Returns the price of the product.
+     */
     public double getPrice() {
         return price;
     }
 
+    /**
+     * The getStock method returns the current inventory stock of the product.
+     * @return Returns the amount of current inventory stock of the product.
+     */
     public int getStock() {
         return stock;
     }
 
+    /**
+     * The getMin method returns the minimum amount of inventory stock for the product.
+     * @return Returns the minimum amount of inventory stock for the product.
+     */
     public int getMin() {
         return min;
     }
 
+    /**
+     * The getMax method returns the maximum amount of inventory stock for the product.
+     * @return Returns the maximum amount of inventory stock for the product.
+     */
     public int getMax() {
         return max;
     }
 
     /**
-     * The addAssociatedPart method adds a specified Part to the list of associated parts of a product.
-     * @param part The Part to add.
+     * The addAssociatedPart method adds a specified part to the list of associated parts of a product.
+     * @param part The part to add.
      */
     public void addAssociatedPart(Part part){
         if(part != null){
@@ -119,8 +143,8 @@ public class Product {
     }
 
     /**
-     * The deleteAssociatedPart method deletes a specified Part from the list of associated parts of a product.
-     * @param selectedAssociatedPart The selected Part to delete.
+     * The deleteAssociatedPart method deletes a specified part from the list of associated parts of a product.
+     * @param selectedAssociatedPart The selected part to delete.
      * @return Returns a boolean value of the result.
      */
     public boolean deleteAssociatedPart(Part selectedAssociatedPart){
@@ -132,8 +156,8 @@ public class Product {
     }
 
     /**
-     * The getAllAssociatedParts method returns all Parts that were added to the list of associated parts of a product.
-     * @return Returns an ObservableList of type Part.
+     * The getAllAssociatedParts method returns all parts that were added to the list of associated parts of a product.
+     * @return Returns an ObservableList of type part.
      */
     public ObservableList<Part> getAllAssociatedParts(){
         return associatedParts;
